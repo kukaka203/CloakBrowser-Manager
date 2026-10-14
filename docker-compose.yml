@@ -1,16 +1,25 @@
 services:
-  manager:
-    build: .
+  cloak-manager:
+    build:
+      context: .
     ports:
-      - "127.0.0.1:8080:8080"
+      - "9088:8080"
+    devices:
+      - /dev/dri:/dev/dri   
+    group_add:
+      - "44"    # video
+      - "993"   # render
     volumes:
-      - ~/.cloakbrowser-manager:/data
+      - ./cloak-data:/data
+      - ./extensions:/data/extensions
+      - ./backend:/app/backend
+      - /app/backend/__pycache__
+      - ./frontend/dist:/app/frontend/dist
+ 
     environment:
-      # Values come from the manager-root .env (compose reads it automatically).
-      - AUTH_TOKEN=${AUTH_TOKEN:-}
-      - CLOAKBROWSER_LICENSE_KEY=${CLOAKBROWSER_LICENSE_KEY:-}
-      - CLOAKBROWSER_RELEASE_CHANNEL=${CLOAKBROWSER_RELEASE_CHANNEL:-stable}
-      # Per-profile file limits; unset means the built-in defaults apply.
-      - ARTIFACT_MAX_BYTES=${ARTIFACT_MAX_BYTES:-}
-      - ARTIFACT_MAX_COUNT=${ARTIFACT_MAX_COUNT:-}
-      - ARTIFACT_MAX_TOTAL_BYTES=${ARTIFACT_MAX_TOTAL_BYTES:-}
+      TZ: Asia/Ho_Chi_Minh
+      #UVICORN_RELOAD: "1"
+    restart: unless-stopped
+
+volumes:
+  cloakprofiles:
